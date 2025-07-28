@@ -5,12 +5,16 @@ import TodoItems from './TodoItems'
 const Todo = () => {
   const [todoList , setTodoList] = useState(localStorage.getItem("todo")?JSON.parse(localStorage.getItem("todo")): [] );
  
+  const [isEditing , setIsEditing] = useState(false);
+
+  const [editIndex, setEditIndex] = useState(null);
   const inputRef = useRef();
 
   const add = () =>{
       const inputText = inputRef.current.value.trim();
       if(inputText === "")
       {
+         alert("The input box is Empty");
         return null;
       }
 
@@ -34,6 +38,41 @@ const Todo = () => {
          return prevTodo.filter((todo) => todo.id !== id)
       })
   }
+
+ const startEdit = (id) => {
+   setIsEditing(true);
+   setEditIndex(id);
+   const selectedTodo = todoList.find((todo) => todo.id == id);
+   if(selectedTodo)
+   {
+    inputRef.current.value = selectedTodo.text;
+   }
+ }
+
+ const saveEditTodo = () => {
+      if(inputRef.current.value.trim() && editIndex !== null)
+      {
+        // we have something to edit
+        let updatedTodo = todoList.map((todo) => {
+          if(todo.id === editIndex)
+          {
+            // text update
+            return {...todo,text:inputRef.current.value}
+          }
+          return todo;
+        });
+
+        // updation of list
+        setTodoList(updatedTodo);
+
+        // setting for next addition
+        setIsEditing(false);
+        setEditIndex(null);
+        inputRef.current.value = "";
+      }
+
+      
+ }
 
   const toggle = (id) => {
     setTodoList((prevTodos) => {
@@ -65,7 +104,12 @@ const Todo = () => {
      <div className="flex items-center my-7 bg-gray-200 rounded-full">
          <input  ref={inputRef} className="bg-transparent border-0 outline-none flex-1 h-14 pl-6 pr-2 placeholder:text-slate-600" type="text" placeholder="Add your task" />
 
-         <button onClick={add}className='border-none rounded-full bg-orange-600 w-32 h-14 text-white text-lg font-medium cursor-pointer'>ADD +</button>
+         <div>
+          {isEditing ? <button onClick={saveEditTodo} className='border-none rounded-full bg-orange-600 w-30 h-14 text-white text-lg font-medium cursor-pointer'>Save</button> :
+          <button onClick={add}className='border-none rounded-full bg-orange-600 w-30 h-14 text-white text-lg font-medium cursor-pointer'>ADD+</button>}
+         </div>
+
+         {/* <button onClick={add}className='border-none rounded-full bg-orange-600 w-30 h-14 text-white text-lg font-medium cursor-pointer'>ADD +</button> */}
 
      </div>
 {/* 
@@ -73,7 +117,7 @@ const Todo = () => {
 
      <div>
       {todoList.map((item,index) => {
-        return <TodoItems key={index} text={item.text}  id={item.id} isComplete ={item.isComplete} deleteTodo = {deleteTodo} toggle={toggle} />
+        return <TodoItems key={index} text={item.text}  id={item.id} isComplete ={item.isComplete} deleteTodo = {deleteTodo} toggle={toggle} startEdit = {startEdit} />
       })}
      </div>
     </div>

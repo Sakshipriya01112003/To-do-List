@@ -5,8 +5,11 @@ import Todo from './components/Todo'
 function App() {
 
   return (
-   <div className="bg-stone-900 grid py-4 min-h-screen">
+
+   <div className="bg-[url('./assets/background.jpg')] bg-cover bg-center h-screen">
+    <div className="grid min-h-screen">
     <Todo/>
+   </div>
    </div>
   )
 }
